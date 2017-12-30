@@ -1,0 +1,35 @@
+<?xml version='1.0' encoding='UTF-8'?>  
+<!DOCTYPE hibernate-configuration PUBLIC  
+          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"  
+          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">  
+  
+<hibernate-configuration>  
+  
+<session-factory>  
+ <property name="hbm2ddl.auto">update</property>  
+ <property name="dialect">org.hibernate.dialect.Oracle10gDialect</property>  
+ <property name="connection.url">jdbc:oracle:thin:@localhost:1521:xe</property>  
+ <property name="connection.username">ADMIN</property>  
+ <property name="connection.password">ADMIN</property>  
+ <property name="connection.driver_class">oracle.jdbc.driver.OracleDriver</property>  
+      
+	<mapping class="com.paperdistsystem.pdsrest.model.AdminLogin"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.Billing"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.BillingLine"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.Customer"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.EmploymentStatus"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.HawkerBilling"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.HawkerInfo"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.LineDistributor"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.LineInfo"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.LovLookup"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.PointName"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.Product"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.ProdSpclPrice"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.ReportParam"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.StopHistory"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.StopHistoryBkp"/>
+	<mapping class="com.paperdistsystem.pdsrest.model.Subscription"/>
+ </session-factory>  
+  
+</hibernate-configuration>  
