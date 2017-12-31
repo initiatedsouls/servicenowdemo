@@ -194,6 +194,15 @@ public class Shipment implements Job {
 
     private final double maxTimeInVehicle;
 
+    private int index;
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
     Shipment(Builder builder) {
         this.id = builder.id;
         this.pickupServiceTime = builder.pickupServiceTime;

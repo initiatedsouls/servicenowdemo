@@ -11,5 +11,9 @@ public interface Job {
     public String getName();
 
     public int getPriority();
+    
+    public int getIndex();
+    
+    public void setIndex(int s);
 
 }

@@ -48,6 +48,7 @@ public class Service implements Job{
 
 		protected double maxTimeInVehicle = Double.MAX_VALUE;
 
+		
 		Builder(String id){
 			this.id = id;
 			timeWindows = new TimeWindows();
@@ -143,7 +144,16 @@ public class Service implements Job{
     private final TimeWindows timeWindows;
 
     private final int priority;
-
+    
+    private int index;
+	@Override
+    public int getIndex() {
+        return index;
+    }
+	@Override
+    public void setIndex(int index) {
+        this.index = index;
+    }
     Service(Builder<?> builder) {
         id = builder.id;
         serviceTime = builder.serviceTime;
@@ -231,6 +241,7 @@ public class Service implements Job{
     public int getPriority() {
         return priority;
     }
+
 
 
 }

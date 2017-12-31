@@ -37,4 +37,7 @@ public interface Activity {
 
     public abstract Activity duplicate();
 
+    public int getIndex();
+    
+    public void setIndex(int index);
 }

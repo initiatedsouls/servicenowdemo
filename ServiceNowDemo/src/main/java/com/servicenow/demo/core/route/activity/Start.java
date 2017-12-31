@@ -27,13 +27,14 @@ public final class Start  implements Activity {
 
     private Location location;
 
-    private int index;
 
+    private int index;
+	@Override
     public int getIndex() {
         return index;
     }
-
-    protected void setIndex(int index) {
+	@Override
+    public void setIndex(int index) {
         this.index = index;
     }
     private Start(String locationId, double theoreticalStart, double theoreticalEnd) {

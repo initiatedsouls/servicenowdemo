@@ -26,13 +26,14 @@ public final class End implements Activity {
 
     private Location location;
 
-    private int index;
 
+    private int index;
+	@Override
     public int getIndex() {
         return index;
     }
-
-    protected void setIndex(int index) {
+	@Override
+    public void setIndex(int index) {
         this.index = index;
     }
     public void setTheoreticalEarliestOperationStartTime(double theoreticalEarliestOperationStartTime) {

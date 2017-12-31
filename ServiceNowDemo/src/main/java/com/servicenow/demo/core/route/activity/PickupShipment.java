@@ -16,13 +16,14 @@ public final class PickupShipment implements PickupActivity{
 
     private double latest = Double.MAX_VALUE;
 
-    private int index;
 
+    private int index;
+	@Override
     public int getIndex() {
         return index;
     }
-
-    protected void setIndex(int index) {
+	@Override
+    public void setIndex(int index) {
         this.index = index;
     }
     public PickupShipment(Shipment shipment) {
