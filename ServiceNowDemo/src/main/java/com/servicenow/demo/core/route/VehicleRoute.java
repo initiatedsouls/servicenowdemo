@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.servicenow.demo.core.cost.EuclideanCosts;
+import com.servicenow.demo.core.cost.EuclideanDistanceCalculator;
+import com.servicenow.demo.core.cost.EuclideanServiceDistance;
 import com.servicenow.demo.core.job.Delivery;
 import com.servicenow.demo.core.job.Job;
 import com.servicenow.demo.core.job.Pickup;
@@ -47,7 +50,7 @@ public class VehicleRoute {
 
         private End end;
 
-        private RouteActivities RouteActivities = new RouteActivities();
+        private RouteActivities routeActivities = new RouteActivities();
 
         private ServiceActivityFactory serviceActivityFactory = new ServiceActivityFactory();
 
@@ -101,7 +104,7 @@ public class VehicleRoute {
             Activity act = acts.get(0);
             act.setTheoreticalEarliestOperationStartTime(timeWindow.getStart());
             act.setTheoreticalLatestOperationStartTime(timeWindow.getEnd());
-            RouteActivities.addActivity(act);
+            routeActivities.addActivity(act);
             return this;
         }
 
@@ -136,7 +139,7 @@ public class VehicleRoute {
             Activity act = acts.get(0);
             act.setTheoreticalEarliestOperationStartTime(pickupTimeWindow.getStart());
             act.setTheoreticalLatestOperationStartTime(pickupTimeWindow.getEnd());
-            RouteActivities.addActivity(act);
+            routeActivities.addActivity(act);
             openShipments.add(shipment);
             openActivities.put(shipment, acts.get(1));
             return this;
@@ -151,7 +154,7 @@ public class VehicleRoute {
                 Activity act = openActivities.get(shipment);
                 act.setTheoreticalEarliestOperationStartTime(deliveryTimeWindow.getStart());
                 act.setTheoreticalLatestOperationStartTime(deliveryTimeWindow.getEnd());
-                RouteActivities.addActivity(act);
+                routeActivities.addActivity(act);
                 openShipments.remove(shipment);
             } else {
                 throw new IllegalArgumentException("cannot deliver shipment. shipment " + shipment + " needs to be picked up first.");
@@ -165,8 +168,8 @@ public class VehicleRoute {
                 throw new IllegalArgumentException("there are still shipments that have not been delivered yet.");
             }
             if (!vehicle.isReturnToDepot()) {
-                if (!RouteActivities.isEmpty()) {
-                    end.setLocation(RouteActivities.getActivities().get(RouteActivities.getActivities().size() - 1).getLocation());
+                if (!routeActivities.isEmpty()) {
+                    end.setLocation(routeActivities.getActivities().get(routeActivities.getActivities().size() - 1).getLocation());
                 }
             }
             return new VehicleRoute(this);
@@ -191,7 +194,7 @@ public class VehicleRoute {
     }
 
     private VehicleRoute(Builder builder) {
-        this.RouteActivities = builder.RouteActivities;
+        this.RouteActivities = builder.routeActivities;
         this.vehicle = builder.vehicle;
         this.start = builder.start;
         this.end = builder.end;
@@ -252,6 +255,20 @@ public class VehicleRoute {
     @Override
     public String toString() {
         return "[start=" + start + "][end=" + end + "][departureTime=" + start.getEndTime() + "][vehicle=" + vehicle + "][nuOfActs=" + RouteActivities.getActivities().size() + "]";
+    }
+    
+    public double getRouteCost() {
+    	double cost = vehicle.getType().getVehicleCostParams().fix;
+    	int rSize = this.getRouteActivities().getActivities().size();
+    	List<Activity> actList = this.getRouteActivities().getActivities();
+    	Activity prev = actList.get(0);
+    	cost+= prev.getOperationTime() * vehicle.getType().getVehicleCostParams().perServiceTimeUnit;
+    	for(int i=1; i<rSize ; i++) {
+    		cost += actList.get(i).getOperationTime() * vehicle.getType().getVehicleCostParams().perServiceTimeUnit +
+    				EuclideanDistanceCalculator.calculateDistance(prev.getLocation().getCoordinate(), actList.get(i).getLocation().getCoordinate()) * vehicle.getType().getVehicleCostParams().perDistanceUnit;
+    		
+    	}
+    	return cost;
     }
 
 }

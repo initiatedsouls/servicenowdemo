@@ -78,7 +78,6 @@ public class RouteActivities {
                 }
             }
         }
-        assert jobRemoved == activityRemoved : "job removed, but belonging activity not.";
         return activityRemoved;
     }
 

@@ -13,7 +13,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManagerAutoConfiguration;
 
+import com.servicenow.demo.core.cost.EuclideanCosts;
+import com.servicenow.demo.core.cost.EuclideanDistanceCalculator;
 import com.servicenow.demo.core.cost.VehicleRoutingActivityCosts;
 import com.servicenow.demo.core.cost.VehicleRoutingTransportCosts;
 import com.servicenow.demo.core.cost.WaitingTimeCosts;
@@ -45,7 +48,7 @@ public class VehicleRoutingProblem {
             return new Builder();
         }
 
-        private VehicleRoutingTransportCosts transportCosts;
+        private EuclideanCosts transportCosts;
 
         private VehicleRoutingActivityCosts activityCosts = new WaitingTimeCosts();
 
@@ -84,7 +87,6 @@ public class VehicleRoutingProblem {
             }
 
         };
-
         private int jobIndexCounter = 1;
 
         private int vehicleIndexCounter = 1;
@@ -100,7 +102,8 @@ public class VehicleRoutingProblem {
         private final ShipmentActivityFactory shipmentActivityFactory = new ShipmentActivityFactory();
 
         private final ServiceActivityFactory serviceActivityFactory = new ServiceActivityFactory();
-
+        
+//        int loc_size = tentative_coordinates.size();
         private void incJobIndexCounter() {
             jobIndexCounter++;
         }
@@ -113,14 +116,14 @@ public class VehicleRoutingProblem {
             vehicleTypeIdIndexCounter++;
         }
 
-        private Set<Location> allLocations = new HashSet<Location>();
+        private HashSet<Location> allLocations = new HashSet<Location>();
 
         public Map<String, Coordinate> getLocationMap() {
             return Collections.unmodifiableMap(tentative_coordinates);
         }
 
 
-        public Builder setRoutingCost(VehicleRoutingTransportCosts costs) {
+        public Builder setRoutingCost(EuclideanCosts costs) {
             this.transportCosts = costs;
             return this;
         }
@@ -205,11 +208,11 @@ public class VehicleRoutingProblem {
 
 
 
-        private void registerJobAndActivity(Activity abstractAct, Job job) {
-            if (activityMap.containsKey(job)) activityMap.get(job).add(abstractAct);
+        private void registerJobAndActivity(Activity act, Job job) {
+            if (activityMap.containsKey(job)) activityMap.get(job).add(act);
             else {
                 List<Activity> actList = new ArrayList<Activity>();
-                actList.add(abstractAct);
+                actList.add(act);
                 activityMap.put(job, actList);
             }
         }
@@ -229,12 +232,6 @@ public class VehicleRoutingProblem {
             jobs.put(job.getId(), job);
         }
 
-        /**
-         * Adds a vehicle.
-         *
-         * @param vehicle vehicle to be added
-         * @return this builder
-         * */
         public Builder addVehicle(Vehicle vehicle) {
            
             if(addedVehicleIds.contains(vehicle.getId())){
@@ -275,7 +272,7 @@ public class VehicleRoutingProblem {
 
         public VehicleRoutingProblem build() {
             if (transportCosts == null) {
-                transportCosts = new CrowFlyCosts(getLocations());
+                transportCosts = new EuclideanCosts();
             }
             for (Job job : tentativeJobs.values()) {
                 if (!jobsInInitialRoutes.contains(job.getId())) {
@@ -337,40 +334,29 @@ public class VehicleRoutingProblem {
 
     private final VehicleRoutingTransportCosts transportCosts;
 
-    /**
-     * contains activity costs, i.e. the costs imposed by an activity
-     */
     private final VehicleRoutingActivityCosts activityCosts;
 
-    /**
-     * map of jobs, stored by jobId
-     */
     private final Map<String, Job> jobs;
 
     private final Map<String, Job> allJobs;
-    /**
-     * Collection that contains available vehicles.
-     */
+
     private final Collection<Vehicle> vehicles;
 
-    /**
-     * Collection that contains all available types.
-     */
     private final Collection<VehicleType> vehicleTypes;
 
 
     private final Collection<VehicleRoute> initialVehicleRoutes;
 
-    private final Collection<Location> allLocations;
+    private final HashSet<Location> allLocations;
 
-    /**
-     * An enum that indicates type of fleetSize. By default, it is INFINTE
-     */
     private final FleetSize fleetSize;
 
     private Map<Job, List<Activity>> activityMap;
 
     private int nuActivities;
+    
+    private double[][] distanceMatrix = null;
+
 
     private final JobActivityFactory jobActivityFactory = new JobActivityFactory() {
 
@@ -464,5 +450,27 @@ public class VehicleRoutingProblem {
         }
         return acts;
     }
+    
+    public double[][] getDistanceMatrix(){
+    	return distanceMatrix;
+    	
+    }
+    
+    public void buildDistanceMatrix() {
+    	int loc_size = allLocations.size();
+    	distanceMatrix = new double[loc_size][loc_size];
+    	double eucDist;
+    	Location[] locArr = (Location[]) allLocations.toArray();
+        for (int i = 0; i <= loc_size; i++) {
+            for (int j = i + 1; j <= loc_size; j++) //The table is summetric to the first diagonal
+            {                                      //Use this to compute distances in O(n/2)
 
+            	eucDist = EuclideanDistanceCalculator.calculateDistance(locArr[i].getCoordinate(), locArr[j].getCoordinate());//(Nodes[i].Node_X - Nodes[j].Node_X);
+
+
+                distanceMatrix[i][j] = eucDist;
+                distanceMatrix[j][i] = eucDist;
+            }
+        }
+    }
 }
